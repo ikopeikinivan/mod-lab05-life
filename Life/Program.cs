@@ -150,6 +150,14 @@ namespace cli_life
             var visited = new bool[Columns, Rows];
             var components = new List<List<(int, int)>>();
 
+            var directions = new (int dx, int dy)[]
+            {
+                (-1, 0),
+                (1, 0),
+                (0, -1),
+                (0, 1)
+            };
+
             for (int x = 0; x < Columns; x++)
             {
                 for (int y = 0; y < Rows; y++)
@@ -167,21 +175,15 @@ namespace cli_life
                             var (cx, cy) = queue.Dequeue();
                             component.Add((cx, cy));
 
-                            for (int dx = -1; dx <= 1; dx++)
+                            foreach (var (dx, dy) in directions)
                             {
-                                for (int dy = -1; dy <= 1; dy++)
+                                int nx = (cx + dx + Columns) % Columns;
+                                int ny = (cy + dy + Rows) % Rows;
+
+                                if (Cells[nx, ny].IsAlive && !visited[nx, ny])
                                 {
-                                    if (dx == 0 && dy == 0)
-                                        continue;
-
-                                    int nx = (cx + dx + Columns) % Columns;
-                                    int ny = (cy + dy + Rows) % Rows;
-
-                                    if (Cells[nx, ny].IsAlive && !visited[nx, ny])
-                                    {
-                                        visited[nx, ny] = true;
-                                        queue.Enqueue((nx, ny));
-                                    }
+                                    visited[nx, ny] = true;
+                                    queue.Enqueue((nx, ny));
                                 }
                             }
                         }
@@ -265,17 +267,14 @@ namespace cli_life
 
         public static int GenerationsToStability(Board board, int maxGen = 500, int stableWindow = 10)
         {
-            var seen = new Dictionary<string, int>();
-
-            for (int gen = 0; gen <= maxGen; gen++)
+            for (int gen = 1; gen <= maxGen; gen++)
             {
-                string state = Serialize(board);
-
-                if (seen.ContainsKey(state))
-                    return gen;
-
-                seen[state] = gen;
+                var before = Serialize(board);
                 board.Advance();
+                var after = Serialize(board);
+
+                if (before == after)
+                    return gen;
             }
 
             return -1;
