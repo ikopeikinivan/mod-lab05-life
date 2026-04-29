@@ -152,10 +152,7 @@ namespace cli_life
 
             var directions = new (int dx, int dy)[]
             {
-                (-1, 0),
-                (1, 0),
-                (0, -1),
-                (0, 1)
+                (-1, 0), (1, 0), (0, -1), (0, 1)
             };
 
             for (int x = 0; x < Columns; x++)
@@ -166,7 +163,6 @@ namespace cli_life
                     {
                         var component = new List<(int, int)>();
                         var queue = new Queue<(int, int)>();
-
                         queue.Enqueue((x, y));
                         visited[x, y] = true;
 
@@ -174,12 +170,10 @@ namespace cli_life
                         {
                             var (cx, cy) = queue.Dequeue();
                             component.Add((cx, cy));
-
                             foreach (var (dx, dy) in directions)
                             {
                                 int nx = (cx + dx + Columns) % Columns;
                                 int ny = (cy + dy + Rows) % Rows;
-
                                 if (Cells[nx, ny].IsAlive && !visited[nx, ny])
                                 {
                                     visited[nx, ny] = true;
@@ -187,12 +181,10 @@ namespace cli_life
                                 }
                             }
                         }
-
                         components.Add(component);
                     }
                 }
             }
-
             return components;
         }
     }
@@ -256,27 +248,26 @@ namespace cli_life
 
     public static class StabilityAnalyzer
     {
-        private static string Serialize(Board board)
-        {
-            var sb = new StringBuilder();
-            for (int y = 0; y < board.Rows; y++)
-                for (int x = 0; x < board.Columns; x++)
-                    sb.Append(board.Cells[x, y].IsAlive ? '1' : '0');
-            return sb.ToString();
-        }
-
         public static int GenerationsToStability(Board board, int maxGen = 500, int stableWindow = 10)
         {
+            int prevCount = board.CountAlive();
+            int stableFor = 0;
             for (int gen = 1; gen <= maxGen; gen++)
             {
-                var before = Serialize(board);
                 board.Advance();
-                var after = Serialize(board);
-
-                if (before == after)
-                    return gen;
+                int count = board.CountAlive();
+                if (count == prevCount)
+                {
+                    stableFor++;
+                    if (stableFor >= stableWindow)
+                        return gen - stableWindow + 1;
+                }
+                else
+                {
+                    stableFor = 0;
+                    prevCount = count;
+                }
             }
-
             return -1;
         }
 
@@ -285,26 +276,17 @@ namespace cli_life
             double[] densities, int runs = 20, int maxGen = 500, int stableWindow = 10)
         {
             var result = new Dictionary<double, double>();
-
             foreach (double density in densities)
             {
                 int total = 0, counted = 0;
-
                 for (int i = 0; i < runs; i++)
                 {
                     var b = new Board(width, height, cellSize, density);
                     int gen = GenerationsToStability(b, maxGen, stableWindow);
-
-                    if (gen >= 0)
-                    {
-                        total += gen;
-                        counted++;
-                    }
+                    if (gen >= 0) { total += gen; counted++; }
                 }
-
                 result[density] = counted > 0 ? (double)total / counted : maxGen;
             }
-
             return result;
         }
     }
