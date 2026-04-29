@@ -158,6 +158,7 @@ namespace cli_life
                     {
                         var component = new List<(int, int)>();
                         var queue = new Queue<(int, int)>();
+
                         queue.Enqueue((x, y));
                         visited[x, y] = true;
 
@@ -170,18 +171,33 @@ namespace cli_life
                             {
                                 for (int dy = -1; dy <= 1; dy++)
                                 {
-                                    if (dx == 0 && dy == 0) continue;
+                                    if (dx == 0 && dy == 0)
+                                        continue;
 
                                     int nx = cx + dx;
                                     int ny = cy + dy;
 
-                                    if (nx < 0 || nx >= Columns || ny < 0 || ny >= Rows)
-                                        continue;
-
-                                    if (Cells[nx, ny].IsAlive && !visited[nx, ny])
+                                    if (nx >= 0 && nx < Columns && ny >= 0 && ny < Rows)
                                     {
-                                        visited[nx, ny] = true;
-                                        queue.Enqueue((nx, ny));
+                                        if (Cells[nx, ny].IsAlive && !visited[nx, ny])
+                                        {
+                                            visited[nx, ny] = true;
+                                            queue.Enqueue((nx, ny));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (dx == 0 || dy == 0)
+                                        {
+                                            int tx = (nx + Columns) % Columns;
+                                            int ty = (ny + Rows) % Rows;
+
+                                            if (Cells[tx, ty].IsAlive && !visited[tx, ty])
+                                            {
+                                                visited[tx, ty] = true;
+                                                queue.Enqueue((tx, ty));
+                                            }
+                                        }
                                     }
                                 }
                             }
