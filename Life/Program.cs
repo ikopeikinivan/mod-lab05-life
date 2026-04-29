@@ -247,29 +247,29 @@ namespace cli_life
 public static class StabilityAnalyzer
 {
     public static int GenerationsToStability(Board board, int maxGen = 500, int stableWindow = 10)
+{
+    int prevCount = board.CountAlive();
+    int stableFor = 0;
+
+    for (int gen = 1; gen <= maxGen; gen++)
     {
-        int prevCount = board.CountAlive();
-        int stableFor = 0;
+        board.Advance();
+        int count = board.CountAlive();
 
-        for (int gen = 1; gen <= maxGen; gen++)
+        if (count == prevCount)
         {
-            board.Advance();
-            int count = board.CountAlive();
-
-            if (count == prevCount)
-            {
-                stableFor++;
-                if (stableFor >= stableWindow)
-                    return gen - stableWindow + 1;
-            }
-            else
-            {
-                stableFor = 0;
-                prevCount = count;
-            }
+            stableFor++;
+            if (stableFor >= stableWindow)
+                return gen - stableWindow + 1;
         }
-        return -1;
+        else
+        {
+            stableFor = 0;
+            prevCount = count;
+        }
     }
+    return -1;
+}
 
     public static Dictionary<double, double> RunExperiment(
         int width, int height, int cellSize,
