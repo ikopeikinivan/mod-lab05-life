@@ -90,7 +90,7 @@ namespace Life.Tests
         [Fact]
         public void Board_CountAlive_ReturnsCorrectCount()
         {
-            var board = new Board(5, 5, 1);
+            var board = new Board(5, 5, 1, 0.0);
             board.Cells[0, 0].IsAlive = true;
             board.Cells[2, 2].IsAlive = true;
             board.Cells[4, 4].IsAlive = true;

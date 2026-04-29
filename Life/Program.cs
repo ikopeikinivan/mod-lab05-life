@@ -244,52 +244,52 @@ namespace cli_life
         }
     }
 
-    public static class StabilityAnalyzer
+public static class StabilityAnalyzer
+{
+    public static int GenerationsToStability(Board board, int maxGen = 500, int stableWindow = 10)
     {
-        public static int GenerationsToStability(Board board, int maxGen = 500, int stableWindow = 10)
+        int prevCount = board.CountAlive();
+        int stableFor = 0;
+
+        for (int gen = 1; gen <= maxGen; gen++)
         {
-            int prevCount = board.CountAlive();
-            int stableFor = 0;
+            board.Advance();
+            int count = board.CountAlive();
 
-            for (int gen = 1; gen <= maxGen; gen++)
+            if (count == prevCount)
             {
-                board.Advance();
-                int count = board.CountAlive();
-
-                if (count == prevCount)
-                {
-                    stableFor++;
-                    if (stableFor >= stableWindow)
-                        return gen - stableWindow + 1;
-                }
-                else
-                {
-                    stableFor = 0;
-                    prevCount = count;
-                }
+                stableFor++;
+                if (stableFor >= stableWindow)
+                    return gen - stableWindow + 1;
             }
-            return -1;
-        }
-
-        public static Dictionary<double, double> RunExperiment(
-            int width, int height, int cellSize,
-            double[] densities, int runs = 20, int maxGen = 500, int stableWindow = 10)
-        {
-            var result = new Dictionary<double, double>();
-            foreach (double density in densities)
+            else
             {
-                int total = 0, counted = 0;
-                for (int i = 0; i < runs; i++)
-                {
-                    var b = new Board(width, height, cellSize, density);
-                    int gen = GenerationsToStability(b, maxGen, stableWindow);
-                    if (gen >= 0) { total += gen; counted++; }
-                }
-                result[density] = counted > 0 ? (double)total / counted : maxGen;
+                stableFor = 0;
+                prevCount = count;
             }
-            return result;
         }
+        return -1;
     }
+
+    public static Dictionary<double, double> RunExperiment(
+        int width, int height, int cellSize,
+        double[] densities, int runs = 20, int maxGen = 500, int stableWindow = 10)
+    {
+        var result = new Dictionary<double, double>();
+        foreach (double density in densities)
+        {
+            int total = 0, counted = 0;
+            for (int i = 0; i < runs; i++)
+            {
+                var b = new Board(width, height, cellSize, density);
+                int gen = GenerationsToStability(b, maxGen, stableWindow);
+                if (gen >= 0) { total += gen; counted++; }
+            }
+            result[density] = counted > 0 ? (double)total / counted : maxGen;
+        }
+        return result;
+    }
+}
 
     public static class AsciiPlot
     {
