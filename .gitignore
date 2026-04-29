@@ -1,0 +1,11 @@
+bin/
+obj/
+
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+*.user
+*.suo
+.vs/
