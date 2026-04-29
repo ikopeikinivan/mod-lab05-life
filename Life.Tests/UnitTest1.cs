@@ -116,7 +116,7 @@ namespace Life.Tests
         [Fact]
         public void Board_GetComponents_ReturnsCorrectCount()
         {
-            var board = new Board(6, 6, 1);
+            var board = new Board(6, 6, 1, 0.0);
             board.Cells[0, 0].IsAlive = board.Cells[1, 0].IsAlive = 
             board.Cells[0, 1].IsAlive = board.Cells[1, 1].IsAlive = true;
             board.Cells[5, 5].IsAlive = true;
